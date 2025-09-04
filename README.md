@@ -62,62 +62,57 @@ docker build -t remote-weather-mcp .
 docker run -p 3000:3000 remote-weather-mcp
 ```
 
-The server will be available at `http://localhost:3000`.
+The server will be available at `http://localhost:3000/mcp`.
 
-## Deploy to Google Cloud Run
+## Deployment
 
-### Prerequisites
-- Google Cloud SDK installed and configured
-- A Google Cloud project
-- Docker
+You can deploy the MCP Server as Remote MCP Server to Google Cloud Run to make it available easily available to any client. 
 
-### Steps
+To deploy the server, run the following command from your terminal, replacing `[PROJECT-ID]` and `[REGION]` with your Google Cloud project ID and desired region:
 
-1. **Build and push the Docker image to Google Container Registry (GCR)**:
 ```bash
-# Build the image
-docker build -t gcr.io/YOUR_PROJECT_ID/remote-weather-mcp .
+# Set your project ID and region
+export PROJECT_ID=remote-mcp-test-462811
+export REGION=europe-west1
+export SERVICE_NAME=remote-weather-mcp-server
 
-# Push to GCR
-docker push gcr.io/YOUR_PROJECT_ID/remote-weather-mcp
-```
+# Authenticate with Google Cloud
+gcloud auth login
+gcloud config set project $PROJECT_ID
 
-2. **Deploy to Cloud Run**:
-```bash
-gcloud run deploy remote-weather-mcp \
-  --image gcr.io/YOUR_PROJECT_ID/remote-weather-mcp \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
+# Enable required services
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com
+
+# Deploy the service
+gcloud run deploy $SERVICE_NAME \
+  --source . \
+  --region $REGION \
   --port 3000 \
-  --memory 512Mi \
-  --cpu 1
+  --allow-unauthenticated
 ```
 
-3. **Get the service URL**:
+The command will build the Docker image, push it to Google Artifact Registry, and deploy it to Cloud Run. After the deployment is complete, you will get a URL for your service. We will allow unauthenticated access to the service this means that anyone with the URL can send requests to the server. If you want to secure the service you can follow the instructions in the [Cloud Run documentation](https://cloud.google.com/run/docs/authenticating/service-to-service).
+
+**cleanup**
+
 ```bash
-gcloud run services describe remote-weather-mcp \
-  --region us-central1 \
-  --format "value(status.url)"
+SERVICE_NAME=remote-weather-mcp-server
+REGION=europe-west1
+gcloud run services delete $SERVICE_NAME --region $REGION
 ```
 
-### Configuration Options
+## Usage Examples
 
-You can customize the deployment with additional flags:
-- `--concurrency`: Maximum number of requests per container instance (default: 80)
-- `--max-instances`: Maximum number of container instances (default: 100)
-- `--timeout`: Maximum request execution time (default: 300 seconds)
-- `--env-vars`: Set environment variables
+Add to your `mcpServers` configuration:
 
-Example with environment variables:
-```bash
-gcloud run deploy remote-weather-mcp \
-  --image gcr.io/YOUR_PROJECT_ID/remote-weather-mcp \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --port 3000 \
-  --env-vars NODE_ENV=production
+```json
+{
+  "mcpServers": {
+    "weather-mcp": {
+      "url": "https://remote-mcp-test.com/mcp/", // replace with your remote mcp server url
+    }
+  }
+}
 ```
 
 ## Learn More

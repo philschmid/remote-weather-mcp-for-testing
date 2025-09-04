@@ -1,24 +1,38 @@
 # Use a slim Node.js image
-FROM node:20-slim
+# Stage 1: Build the application
+FROM node:20 AS build
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and install dependencies
 COPY package*.json ./
+RUN npm install
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Copy source code
+COPY . .
 
-# Copy built application
-COPY dist/ ./dist/
+# Build the application
+RUN npm run build
+
+# Stage 2: Production image
+FROM node:20-slim
+
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
+# Set working directory
+WORKDIR /app
+
+# Create a non-root user
+RUN useradd -m appuser
+USER appuser
+
+# Copy built application and config from build stage
+COPY --from=build /app/dist/ ./dist/
 
 # Expose port (default for xmcp HTTP server)
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
 
 # Run the HTTP server
 CMD ["node", "dist/http.js"]
