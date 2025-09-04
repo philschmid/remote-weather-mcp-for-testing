@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.git
+.github
+.vscode
+*.md
+src
+tsconfig.json
+xmcp.config.ts
+xmcp-env.d.ts
+Dockerfile
+.dockerignore
