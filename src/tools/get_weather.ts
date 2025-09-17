@@ -18,11 +18,11 @@ export const schema = {
 };
 
 export const metadata: ToolMetadata = {
-  name: "get_temperature_forecast",
+  name: "get_weather",
   description:
-    "Get hourly temperature forecast for a location between start and end dates using Open-Meteo.",
+    "Get hourly weather forecast for a location between start and end dates using Open-Meteo.",
   annotations: {
-    title: "Get Temperature Forecast",
+    title: "Get Weather",
     readOnlyHint: true,
     destructiveHint: false,
     idempotentHint: true,
