@@ -31,8 +31,8 @@ USER appuser
 # Copy built application and config from build stage
 COPY --from=build /app/dist/ ./dist/
 
-# Expose port (default for xmcp HTTP server)
-EXPOSE 3000
+# Expose port 8080 for App Engine
+EXPOSE 8080
 
 # Run the HTTP server
 CMD ["node", "dist/http.js"]

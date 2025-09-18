@@ -73,7 +73,7 @@ To deploy the server, run the following command from your terminal, replacing `[
 ```bash
 # Set your project ID and region
 export PROJECT_ID=remote-mcp-test-462811
-export REGION=europe-west1
+export REGION=us-central1
 export SERVICE_NAME=remote-weather-mcp-server
 
 # Authenticate with Google Cloud
@@ -87,7 +87,7 @@ gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudb
 gcloud run deploy $SERVICE_NAME \
   --source . \
   --region $REGION \
-  --port 3000 \
+  --port 8080 \
   --allow-unauthenticated
 ```
 
@@ -97,8 +97,30 @@ The command will build the Docker image, push it to Google Artifact Registry, an
 
 ```bash
 SERVICE_NAME=remote-weather-mcp-server
-REGION=europe-west1
+REGION=us-central1
 gcloud run services delete $SERVICE_NAME --region $REGION
+```
+
+### Deploy to Google App Engine
+
+This project includes an `app.yaml` file to deploy the application to the App Engine flexible environment using the local `Dockerfile`.
+
+To deploy the application, run the following commands. This single snippet will guide you through setting your project, authenticating, and deploying. Once deployed, your application will be publicly accessible at a URL provided by Google App Engine (usually `https://[YOUR_PROJECT_ID].appspot.com`).
+
+```bash
+# Set your Google Cloud project ID and desired region
+export PROJECT_ID=gemini-api-demos
+export REGION=us-central1
+
+# Authenticate with Google Cloud and set your project
+gcloud auth login
+gcloud config set project $PROJECT_ID
+
+# Deploy the application to App Engine Flexible Environment
+# This command builds your Docker image, pushes it to the registry,
+# and deploys it based on the app.yaml configuration.
+gcloud app create --region=us-central1
+gcloud app deploy
 ```
 
 ## Usage Examples
